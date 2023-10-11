@@ -8,11 +8,14 @@ type MenuItem struct {
 }
 
 type Order struct {
-	ID       int
-	Customer string
-	Items    []MenuItem
-	Total    float64
-	Status   string // Pending, Processed, Completed, Canceled, etc.
+    ID        int
+    Customer  string
+    MenuID    int // Kolom menu_id dalam database
+    Quantity  int // Kolom quantity dalam database
+    OrderTime string // Kolom order_time dalam database
+    Total     float64
+    Status    string
+    // Field lain yang sesuai dengan struktur database Anda
 }
 
 type User struct {
@@ -23,3 +26,6 @@ type User struct {
 	Password string
 	IsAdmin  bool
 }
+
+
+
