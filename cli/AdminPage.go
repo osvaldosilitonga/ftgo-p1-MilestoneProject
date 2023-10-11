@@ -76,25 +76,44 @@ func AdminPage(username string) {
 func OrderListAction() {
 	scanner := bufio.NewScanner(os.Stdin)
 
-	fmt.Printf("\n****\t Actions\t ****\n")
-	fmt.Println("1. Process Order")
-	fmt.Println("2. Cancel Order")
-	fmt.Println("0. Back")
-	fmt.Println() // Separator
+	for {
+		fmt.Printf("\n****\t Actions\t ****\n")
+		fmt.Println("1. Process Order")
+		fmt.Println("2. Cancel Order")
+		fmt.Println("0. Back")
+		fmt.Println() // Separator
 
-	// User Input
-	fmt.Print("Action : ")
-	scanner.Scan()
-	action := scanner.Text()
-
-	switch action {
-	case "1":
-		fmt.Println()
-		fmt.Print("Insert Order ID : ")
+		// User Input
+		fmt.Print("Action : ")
 		scanner.Scan()
-		id, _ := strconv.Atoi(scanner.Text())
+		action := scanner.Text()
 
-		msg := handler.ProcessOrder(id)
-		fmt.Println(msg)
+		switch action {
+		case "1":
+			fmt.Println()
+			fmt.Println("Process Order")
+			fmt.Print("Insert Order ID : ")
+			scanner.Scan()
+			id, _ := strconv.Atoi(scanner.Text())
+
+			msg := handler.ProcessOrder(id)
+			fmt.Println(msg)
+
+		case "2":
+			fmt.Println()
+			fmt.Println("Cancel Order")
+			fmt.Print("Insert Order ID : ")
+			scanner.Scan()
+			id, _ := strconv.Atoi(scanner.Text())
+
+			msg := handler.CancelOrder(id)
+			fmt.Println(msg)
+
+		case "0":
+			return
+
+		default:
+			fmt.Println("*Invalid input!")
+		}
 	}
 }
