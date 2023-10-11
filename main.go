@@ -9,11 +9,20 @@ import (
 	"klepon/cli"
 	"klepon/entity"
 	"klepon/handler"
+	"klepon/config"
 )
 
 func main() {
-	scanner := bufio.NewScanner(os.Stdin)
+	db, err := config.ConnDB()
+    if err != nil {
+        fmt.Printf("Failed to connect to the database: %v\n", err)
+        return
+    }
+    defer db.Close()
 
+    // Sisipkan variabel db ke dalam pemanggilan fungsi UserPage
+    cli.UserPage(username, db)
+	scanner := bufio.NewScanner(os.Stdin)
 	// // Main For
 	for {
 		fmt.Println()
