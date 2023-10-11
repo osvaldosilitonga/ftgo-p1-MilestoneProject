@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"klepon/handler"
 	"os"
+	"strconv"
 )
 
 func AdminPage(username string) {
@@ -85,5 +86,15 @@ func OrderListAction() {
 	fmt.Print("Action : ")
 	scanner.Scan()
 	action := scanner.Text()
-	fmt.Println(action)
+
+	switch action {
+	case "1":
+		fmt.Println()
+		fmt.Print("Insert Order ID : ")
+		scanner.Scan()
+		id, _ := strconv.Atoi(scanner.Text())
+
+		msg := handler.ProcessOrder(id)
+		fmt.Println(msg)
+	}
 }
