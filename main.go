@@ -70,7 +70,7 @@ func Login() {
 	if isAdmin {
 		cli.AdminPage(username)
 	} else {
-		cli.UserPage(username)
+		cli.UserPage(username, password)
 	}
 }
 

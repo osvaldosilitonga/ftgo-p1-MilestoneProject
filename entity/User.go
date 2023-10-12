@@ -8,17 +8,24 @@ type MenuItem struct {
 }
 
 type Order struct {
-    ID        int
-    Customer  string
-    MenuID    int // Kolom menu_id dalam database
-    Quantity  int // Kolom quantity dalam database
-    OrderTime string // Kolom order_time dalam database
-    Total     float64
-    Status    string
+    ID         int
+    UserID     int
+    Customer   string
+    MenuID     int
+	Menu string
+    Quantity   int
+    OrderTime  string
+    TotalAmount float64
+    Total      float64
+    Status     string
+    Price      float64 // Ubah tipe data Price ke float64 jika itu tipe data yang benar di tabel Anda
     // Field lain yang sesuai dengan struktur database Anda
 }
 
+
+
 type User struct {
+	ID	int
 	Name     string
 	Address  string
 	Email    string
