@@ -368,9 +368,9 @@ func DisplayOrderHistory(username string) ([]entity.Order, error) {
             log.Printf("Failed to scan row: %v\n", err)
             return nil, err
         }
-
+        
         orderHistory = append(orderHistory, order)
-
+        
         fmt.Printf("%-10d | %-10s | Rp.%-10.2f | %-10s\n", order.ID, order.Customer, order.TotalAmount, order.Status)
     }
 
