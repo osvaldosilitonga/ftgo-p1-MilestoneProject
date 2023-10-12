@@ -64,13 +64,14 @@ func Login() {
 	isAdmin, err := handler.Login(username, password)
 	if err != nil {
 		fmt.Printf("\n*** Failed to login. Please try again. \n[Error] : %v\n", err)
+		return
 	}
 
 	// Check if user is admin or not
 	if isAdmin {
 		cli.AdminPage(username)
 	} else {
-		cli.UserPage(username, password)
+		cli.UserPage(username)
 	}
 }
 

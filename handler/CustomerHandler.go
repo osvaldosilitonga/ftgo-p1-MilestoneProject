@@ -4,13 +4,22 @@ import (
 	"bufio"
 	"fmt"
 	"klepon/config"
-
+	"strconv"
+	"os/exec"
 	"klepon/entity"
 	"log"
 	"os"
 )
 
+
+func clearScreen() {
+	cmd := exec.Command("cmd", "/c", "cls")
+	cmd.Stdout = os.Stdout
+	cmd.Run()
+}
 func DisplayMenuList() ([]entity.MenuItem, error) {
+	// Membersihkan layar konsol
+	clearScreen()
 	// Connect to DB
 	db, err := config.ConnDB()
 	if err != nil {
@@ -43,6 +52,7 @@ func DisplayMenuList() ([]entity.MenuItem, error) {
 }
 
 func MakeOrder(username string, cart *[]entity.MenuItem, status string) error {
+	
 	// Koneksi ke DB
 	db, err := config.ConnDB()
 	if err != nil {
@@ -51,22 +61,32 @@ func MakeOrder(username string, cart *[]entity.MenuItem, status string) error {
 	}
 	defer db.Close()
 
+	scanner := bufio.NewScanner(os.Stdin)
+
 	for {
-		var menuID, quantity int
+		// var menuID, quantity int
 
 		fmt.Print("Masukkan ID menu yang ingin dipesan (0 untuk selesai): ")
-		fmt.Scan(&menuID)
+		scanner.Scan()
+		menuID, err := strconv.Atoi(scanner.Text())
+		// fmt.Scan(&menuID)
 
 		// Keluar dari loop jika pengguna memasukkan 0
 		if menuID == 0 {
+			return nil
+		}
+		if menuID == 0 && len(*cart) > 0 {
 			break
 		}
 
 		fmt.Print("Masukkan jumlah: ")
-		fmt.Scan(&quantity)
+		scanner.Scan()
+		quantity, err := strconv.Atoi(scanner.Text())
+		// fmt.Scan(&quantity)
 
 		// Query item menu berdasarkan ID yang dimasukkan
 		var menuItem entity.MenuItem
+		menuItem.Qty = quantity
 		err = db.QueryRow("SELECT id, nama, harga FROM menu WHERE id = ?", menuID).Scan(&menuItem.ID, &menuItem.Name, &menuItem.Price)
 		if err != nil {
 			log.Printf("Gagal mengambil item menu: %v\n", err)
@@ -74,9 +94,10 @@ func MakeOrder(username string, cart *[]entity.MenuItem, status string) error {
 		}
 
 		// Tambahkan item menu yang dipilih ke dalam keranjang berdasarkan jumlah yang dimasukkan
-		for i := 0; i < quantity; i++ {
-			*cart = append(*cart, menuItem)
-		}
+		// for i := 0; i < quantity; i++ {
+		// 	*cart = append(*cart, menuItem)
+		// }
+		*cart = append(*cart, menuItem)
 
 		fmt.Printf("%s ditambahkan ke dalam keranjang Anda.\n", menuItem.Name)
 	}
@@ -99,16 +120,20 @@ func MakeOrder(username string, cart *[]entity.MenuItem, status string) error {
 		}
 	}
 
+	fmt.Println("Order successfully created and added to your cart.")
+
 	return nil
 }
 
 func ManageCart(username string, cart *[]entity.MenuItem, defaultStatus string) {
+	// Membersihkan layar konsol
+	clearScreen()
 
 	for {
 		// Tampilkan isi keranjang
 		fmt.Println("Your Cart:")
 		for i, item := range *cart {
-			fmt.Printf("%d. ID: %d, Name: %s, Price: %.2f\n", i+1, item.ID, item.Name, item.Price)
+			fmt.Printf("%d. ID: %d, Name: %s, Price: %.2f, Qty: %v\n", i+1, item.ID, item.Name, item.Price, item.Qty)
 		}
 
 		// Berikan opsi kepada pengguna
@@ -170,42 +195,50 @@ func GetOrderID(username string) (int, error) {
 }
 
 func EditCart(cart *[]entity.MenuItem) {
-	fmt.Println("Edit Cart")
+    // Membersihkan layar konsol
+    clearScreen()
+    fmt.Println("Edit Cart")
 
-	// Tampilkan isi keranjang saat ini
-	fmt.Println("Your Cart:")
-	for i, item := range *cart {
-		fmt.Printf("%d. ID: %d, Name: %s, Price: %.2f\n", i+1, item.ID, item.Name, item.Price)
-	}
+    // Tampilkan isi keranjang saat ini
+    fmt.Println("Your Cart:")
+    for i, item := range *cart {
+        fmt.Printf("%d. ID: %d, Name: %s, Price: %.2f, Qty: %d\n", i+1, item.ID, item.Name, item.Price, item.Qty)
+    }
 
-	// Mintalah pengguna memasukkan nomor item yang ingin diedit
-	fmt.Print("Enter the item number you want to edit (0 to finish): ")
-	var itemNumber int
-	fmt.Scan(&itemNumber)
+    // Mintalah pengguna memasukkan nomor item yang ingin diedit
+    fmt.Print("Enter the item number you want to edit (0 to finish): ")
+    var itemNumber int
+    fmt.Scan(&itemNumber)
 
-	if itemNumber == 0 {
-		return // Keluar dari Edit Cart jika pengguna memilih 0
-	}
+    if itemNumber == 0 {
+        return // Keluar dari Edit Cart jika pengguna memilih 0
+    }
 
-	if itemNumber < 1 || itemNumber > len(*cart) {
-		fmt.Println("Invalid item number. Please try again.")
-		return
-	}
+    if itemNumber < 1 || itemNumber > len(*cart) {
+        fmt.Println("Invalid item number. Please try again.")
+        return
+    }
 
-	// Mintalah pengguna memasukkan informasi item yang baru
-	fmt.Print("Enter the new quantity: ")
-	var newQuantity int
-	fmt.Scan(&newQuantity)
+    // Mintalah pengguna memasukkan informasi item yang baru
+    fmt.Print("Enter the new quantity: ")
+    var newQuantity int
+    fmt.Scan(&newQuantity)
 
-	// Update jumlah item dalam keranjang
-	//(*cart)[itemNumber-1].Quantity = newQuantity
+    if newQuantity < 0 {
+        fmt.Println("Invalid quantity. Please try again.")
+        return
+    }
 
-	fmt.Println("Item updated successfully.")
+    // Update jumlah item dalam keranjang
+    (*cart)[itemNumber-1].Qty = newQuantity
+
+    fmt.Println("Item updated successfully.")
 }
+
 
 func DeleteItemFromCart(username string, cart *[]entity.MenuItem) {
 	fmt.Println("Delete Item from Cart")
-
+	fmt.Print("\033[H\033[2J") 
 	// Tampilkan isi keranjang saat ini
 	fmt.Println("Your Cart:")
 	for i, item := range *cart {
@@ -215,7 +248,7 @@ func DeleteItemFromCart(username string, cart *[]entity.MenuItem) {
 	// Mintalah pengguna memasukkan nomor item yang ingin dihapus
 	fmt.Print("Enter the item number you want to delete (0 to finish): ")
 	var itemNumber int
-	fmt.Scan(&itemNumber)
+	fmt.Scanln(&itemNumber)
 
 	if itemNumber == 0 {
 		return // Keluar dari Delete Item jika pengguna memilih 0
@@ -225,6 +258,8 @@ func DeleteItemFromCart(username string, cart *[]entity.MenuItem) {
 		fmt.Println("Invalid item number. Please try again.")
 		return
 	}
+	// Membersihkan layar konsol
+	clearScreen()
 
 	// Hapus item dari keranjang
 	*cart = append((*cart)[:itemNumber-1], (*cart)[itemNumber:]...)
@@ -250,10 +285,10 @@ func SubmitOrder(username string, cart *[]entity.MenuItem, status string) (int, 
 	}
 
 	// Calculate the total amount from the items in the cart
-	totalAmount := 0.0
-	for _, item := range *cart {
-		totalAmount += item.Price
-	}
+	// totalAmount := 0.0
+	// for _, item := range *cart {
+	// 	totalAmount += item.Price
+	// }
 
 	// Begin a database transaction
 	tx, err := db.Begin()
@@ -263,7 +298,7 @@ func SubmitOrder(username string, cart *[]entity.MenuItem, status string) (int, 
 	}
 
 	// Insert the order into the 'orders' table, including the total amount
-	result, err := tx.Exec("INSERT INTO orders (user_id, order_date, status, amount) VALUES (?, NOW(), ?, ?)", user_id, status, totalAmount)
+	result, err := tx.Exec("INSERT INTO orders (user_id, order_date, status) VALUES (?, NOW(), ?)", user_id, status)
 	if err != nil {
 		tx.Rollback() // Rollback the transaction on error
 		log.Printf("Failed to insert order into orders table: %v\n", err)
@@ -280,7 +315,7 @@ func SubmitOrder(username string, cart *[]entity.MenuItem, status string) (int, 
 
 	// Insert items into the 'order_details' table
 	for _, item := range *cart {
-		_, err := tx.Exec("INSERT INTO order_details (order_id, menu_id, qty) VALUES (?, ?, 1)", orderID, item.ID)
+		_, err := tx.Exec("INSERT INTO order_details (order_id, menu_id, qty) VALUES (?, ?, ?)", orderID, item.ID, item.Qty)
 		if err != nil {
 			tx.Rollback() // Rollback the transaction on error
 			log.Printf("Failed to insert order details: %v\n", err)
@@ -324,17 +359,17 @@ func GetLastOrderID() (int, error) {
 }
 
 func DisplayOrderHistory(username string) ([]entity.Order, error) {
-    fmt.Println("============== Order Customer History ==============\n")
-    fmt.Println("\n")
-    // Connect to the database
-    db, err := config.ConnDB()
-    if err != nil {
-        log.Fatal("Failed to connect DB", err)
-    }
-    defer db.Close()
+	fmt.Println("============== Order Customer History ==============")
+	fmt.Println()
+	// Connect to the database
+	db, err := config.ConnDB()
+	if err != nil {
+		log.Fatal("Failed to connect DB", err)
+	}
+	defer db.Close()
 
-    // Query to retrieve order history for the specified username
-    query := `
+	// Query to retrieve order history for the specified username
+	query := `
     SELECT
         o.id AS order_id,
         u.username AS customer,
@@ -350,31 +385,29 @@ func DisplayOrderHistory(username string) ([]entity.Order, error) {
         u.username = ?;
     `
 
-    // Execute the query and scan the results into a slice of Order objects
-    rows, err := db.Query(query, username)
-    if err != nil {
-        log.Printf("Failed to execute query: %v\n", err)
-        return nil, err
-    }
-    defer rows.Close()
+	// Execute the query and scan the results into a slice of Order objects
+	rows, err := db.Query(query, username)
+	if err != nil {
+		log.Printf("Failed to execute query: %v\n", err)
+		return nil, err
+	}
+	defer rows.Close()
 
-    var orderHistory []entity.Order
+	var orderHistory []entity.Order
 
-    fmt.Printf("%-10s | %-10s | %-13s | %-10s\n", "Order ID", "Customer", "Total", "Status")
-    for rows.Next() {
-        var order entity.Order
-        err := rows.Scan(&order.ID, &order.Customer, &order.Menu, &order.TotalAmount, &order.Status)
-        if err != nil {
-            log.Printf("Failed to scan row: %v\n", err)
-            return nil, err
-        }
-        
-        orderHistory = append(orderHistory, order)
-        
-        fmt.Printf("%-10d | %-10s | Rp.%-10.2f | %-10s\n", order.ID, order.Customer, order.TotalAmount, order.Status)
-    }
+	fmt.Printf("%-10s | %-10s | %-13s | %-10s\n", "Order ID", "Customer", "Total", "Status")
+	for rows.Next() {
+		var order entity.Order
+		err := rows.Scan(&order.ID, &order.Customer, &order.Menu, &order.TotalAmount, &order.Status)
+		if err != nil {
+			log.Printf("Failed to scan row: %v\n", err)
+			return nil, err
+		}
 
-    return orderHistory, nil
+		orderHistory = append(orderHistory, order)
+
+		fmt.Printf("%-10d | %-10s | Rp.%-10.2f | %-10s\n", order.ID, order.Customer, order.TotalAmount, order.Status)
+	}
+
+	return orderHistory, nil
 }
-
-
