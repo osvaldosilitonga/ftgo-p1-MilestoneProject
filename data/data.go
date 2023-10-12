@@ -43,30 +43,34 @@ func GetMenuList() ([]entity.MenuItem, error) {
 
 // GetOrderHistory mengambil riwayat pesanan dari database berdasarkan username
 func GetOrderHistory(username string) ([]entity.Order, error) {
-	// Query untuk mengambil data riwayat pesanan dari database
-	query := "SELECT id, menu_id, quantity, order_time FROM orders WHERE username = ?"
-	
-	// Eksekusi query
-	rows, err := db.Query(query, username)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
 
-	var orderHistory []entity.Order
+    // Query untuk mendapatkan riwayat pesanan berdasarkan username
+    rows, err := db.Query("SELECT id, user_id, menu_id, qty, order_date, status, amount FROM orders WHERE customer_id = ?", username)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
 
-	for rows.Next() {
-		var order entity.Order
-		if err := rows.Scan(&order.ID, &order.MenuID, &order.Quantity, &order.OrderTime); err != nil {
-			return nil, err
-		}
-		orderHistory = append(orderHistory, order)
-	}
+    var orderHistory []entity.Order
 
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
+    for rows.Next() {
+        var order entity.Order
+        if err := rows.Scan(&order.ID, &order.Customer, &order.MenuID, &order.Quantity, &order.OrderTime, &order.Status, &order.Total); err != nil {
+            return nil, err
+        }
+        orderHistory = append(orderHistory, order)
+    }
 
-	return orderHistory, nil
+    if err := rows.Err(); err != nil {
+        return nil, err
+    }
+
+    return orderHistory, nil
 }
+
+func ConnDB() {
+	panic("unimplemented")
+}
+
+
 // Fungsi-fungsi lainnya untuk operasi database
