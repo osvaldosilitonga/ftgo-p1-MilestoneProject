@@ -26,10 +26,10 @@ func GetOrders() ([]entity.AdminOrderList, error) {
 	query := `
 		SELECT orders.id, users.username, orders.order_date, menu.nama, order_details.qty 
 		FROM orders
-		LEFT JOIN order_details ON order_details.order_id = orders.id
+		JOIN order_details ON order_details.order_id = orders.id
 		JOIN users ON orders.user_id = users.id
 		JOIN menu ON order_details.menu_id = menu.id
-		WHERE orders.status = "waiting"
+		WHERE orders.status = "Waiting"
 		ORDER BY orders.order_date DESC;
 	`
 	rows, err := db.QueryContext(ctx, query)

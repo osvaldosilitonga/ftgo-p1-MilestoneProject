@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func AdminPage(username string) {
@@ -17,9 +18,8 @@ func AdminPage(username string) {
 		fmt.Println("*****	Welcome To Admin Page	*****")
 		fmt.Println("1. Order List")
 		fmt.Println("2. Payment")
-		fmt.Println("3. Menu")
-		fmt.Println("4. User")
-		fmt.Println("5. Report")
+		// fmt.Println("3. Menu")
+		fmt.Println("3. Report")
 		fmt.Println("0. Logout")
 
 		// User Input
@@ -35,6 +35,7 @@ func AdminPage(username string) {
 			orders, err := handler.GetOrders()
 			if err != nil {
 				fmt.Printf("\n*** Failed to get order list. Please try again! \n[ERR] ---> %v\n\n", err)
+				continue
 			}
 
 			// Output
@@ -71,6 +72,7 @@ func AdminPage(username string) {
 			orders, err := handler.GetPaymentOrders()
 			if err != nil {
 				fmt.Printf("\n*** Failed to get order list. Please try again! \n[ERR] ---> %v\n\n", err)
+				continue
 			}
 
 			// Output
@@ -101,12 +103,16 @@ func AdminPage(username string) {
 
 			for {
 				// Order Id input
-				fmt.Print("Insert Id : ")
+				fmt.Print("Insert Id (type 0 to exit) : ")
 				scanner.Scan()
 				orderId, err := strconv.Atoi(strings.TrimSpace(scanner.Text()))
 				if err != nil {
 					fmt.Println("Invalid input")
 					continue
+				}
+
+				if orderId == 0 {
+					break
 				}
 
 				// Discount input
@@ -189,9 +195,52 @@ func AdminPage(username string) {
 				}
 			}
 
+		case "3":
+			for {
+				fmt.Printf("\n----------	Report Menu	----------\n")
+				fmt.Println("1. Order Report")
+				fmt.Println("2. Menu Report")
+				fmt.Println("0. Back")
+
+				fmt.Println() // Separator
+
+				fmt.Print("Choice : ")
+				scanner.Scan()
+				choice = strings.TrimSpace(scanner.Text())
+
+				if choice == "0" {
+					break
+				}
+
+				switch choice {
+				case "1":
+					report, status := handler.GeneralReport()
+					if !status {
+						fmt.Println("Failed to generate report")
+						continue
+					}
+
+					current := time.Now()
+					y, m, _ := current.Date()
+					// Output
+					fmt.Printf("\n----------General Report----------\n")
+					fmt.Printf("Date			: %v %v\n", m, y)
+					fmt.Println("Order Success		:", report.Success)
+					fmt.Println("Order Cancel		:", report.Cancel)
+					fmt.Printf("Order Revenue		: Rp.%v\n", report.Revenue)
+					fmt.Println("---------------------------------------")
+
+				case "2":
+					fmt.Println("Choice 2 Menu Report")
+				default:
+					fmt.Println("Invalid Input")
+				}
+			}
+
 		case "0":
 			fmt.Printf("\n*****	You have successfully logged out!	*****\n\n")
 			return
+
 		default:
 			fmt.Println("Invalid input. Please try again!")
 		}
