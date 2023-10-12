@@ -40,24 +40,25 @@ func AdminPage(username string) {
 
 			// Output
 			// Retrive Orders Data
-			var username string
+			var username, orderDate string
 			counter := 1
 			for _, o := range orders {
-				if username != o.Username {
+				if username != o.Username || o.OrderDate != orderDate {
+					counter = 1
+
 					fmt.Println() // Separator
 					fmt.Println("Order ID		: ", o.ID)
 					fmt.Println("Username		: ", o.Username)
 					fmt.Println("Order Date		: ", o.OrderDate)
 					fmt.Println("Menu Items : ")
 					fmt.Printf("  %v. %v --- x%v\n", counter, o.Menu, o.Qty)
-
-					counter = 1
 				} else {
 					counter += 1
 					fmt.Printf("  %v. %v --- x%v\n", counter, o.Menu, o.Qty)
 					continue
 				}
 
+				orderDate = o.OrderDate
 				username = o.Username
 			}
 
@@ -77,10 +78,11 @@ func AdminPage(username string) {
 
 			// Output
 			// Retrive Orders Data
-			var username string
+			var username, orderDate string
 			counter := 1
 			for _, o := range orders {
-				if username != o.Username {
+				if username != o.Username || o.OrderDate != orderDate {
+					counter = 1
 					fmt.Println() // Separator
 					fmt.Println("Order ID		: ", o.ID)
 					fmt.Println("Username		: ", o.Username)
@@ -88,13 +90,13 @@ func AdminPage(username string) {
 					fmt.Println("Menu Items : ")
 					fmt.Printf("  %v. %v -- Rp.%v | x%v\n", counter, o.Menu, o.Price, o.Qty)
 
-					counter = 1
 				} else {
 					counter += 1
 					fmt.Printf("  %v. %v -- Rp.%v | x%v\n", counter, o.Menu, o.Price, o.Qty)
 					continue
 				}
 
+				orderDate = o.OrderDate
 				username = o.Username
 			}
 
@@ -103,7 +105,7 @@ func AdminPage(username string) {
 
 			for {
 				// Order Id input
-				fmt.Print("Insert Id (type 0 to exit) : ")
+				fmt.Print("Insert ID (type 0 to exit) : ")
 				scanner.Scan()
 				orderId, err := strconv.Atoi(strings.TrimSpace(scanner.Text()))
 				if err != nil {
@@ -200,6 +202,7 @@ func AdminPage(username string) {
 				fmt.Printf("\n----------	Report Menu	----------\n")
 				fmt.Println("1. Order Report")
 				fmt.Println("2. Menu Report")
+				fmt.Println("3. Customer Report")
 				fmt.Println("0. Back")
 
 				fmt.Println() // Separator
@@ -220,10 +223,12 @@ func AdminPage(username string) {
 						continue
 					}
 
+					// Date
 					current := time.Now()
 					y, m, _ := current.Date()
+
 					// Output
-					fmt.Printf("\n----------General Report----------\n")
+					fmt.Printf("\n---------- General Report ----------\n")
 					fmt.Printf("Date			: %v %v\n", m, y)
 					fmt.Println("Order Success		:", report.Success)
 					fmt.Println("Order Cancel		:", report.Cancel)
@@ -231,7 +236,50 @@ func AdminPage(username string) {
 					fmt.Println("---------------------------------------")
 
 				case "2":
-					fmt.Println("Choice 2 Menu Report")
+					report, err := handler.MenuReport()
+					if err != nil {
+						fmt.Println("Failed to generate report")
+						continue
+					}
+
+					// Date
+					current := time.Now()
+					y, m, _ := current.Date()
+
+					// Output
+					fmt.Printf("\n---------- Menu Report ----------\n\n")
+					fmt.Printf("Date : %v %v\n\n", m, y)
+					for _, v := range report {
+						fmt.Printf("ID			: %v\n", v.ID)
+						fmt.Printf("Menu			: %v\n", v.Menu)
+						fmt.Printf("Category		: %v\n", v.Category)
+						fmt.Printf("Success			: %vx\n\n", v.OrderSuccess)
+					}
+
+					fmt.Println("---------------------------------------")
+
+				case "3":
+					report, err := handler.CustomerReport()
+					if err != nil {
+						fmt.Println("Failed to generate report")
+						continue
+					}
+
+					// Date
+					current := time.Now()
+					y, m, _ := current.Date()
+
+					// Output
+					fmt.Printf("\n---------- Customer Report ----------\n\n")
+					fmt.Printf("Date : %v %v\n\n", m, y)
+					for _, v := range report {
+						fmt.Printf("Username		: %v\n", v.Username)
+						fmt.Printf("Order Success		: %v\n", v.OrderSuccess)
+						fmt.Printf("Order Cancel		: %v\n\n", v.OrderCancel)
+					}
+
+					fmt.Println("---------------------------------------")
+
 				default:
 					fmt.Println("Invalid Input")
 				}
