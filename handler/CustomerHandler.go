@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"klepon/config"
 	"strconv"
+	"strings"
 
 	"klepon/entity"
 	"log"
@@ -184,18 +185,28 @@ func GetOrderID(username string) (int, error) {
 }
 
 func EditCart(cart *[]entity.MenuItem) {
+	scanner := bufio.NewScanner(os.Stdin)
+
+	fmt.Println()
 	fmt.Println("Edit Cart")
+	fmt.Println()
 
 	// Tampilkan isi keranjang saat ini
 	fmt.Println("Your Cart:")
 	for i, item := range *cart {
-		fmt.Printf("%d. ID: %d, Name: %s, Price: %.2f\n", i+1, item.ID, item.Name, item.Price)
+		fmt.Printf("%d. ID: %d, Name: %s, Price: %.2f, Qty: %v\n", i+1, item.ID, item.Name, item.Price, item.Qty)
 	}
 
 	// Mintalah pengguna memasukkan nomor item yang ingin diedit
-	fmt.Print("Enter the item number you want to edit (0 to finish): ")
-	var itemNumber int
-	fmt.Scan(&itemNumber)
+	fmt.Print("Enter the Item ID you want to edit (0 to finish): ")
+	scanner.Scan()
+	itemNumber, err := strconv.Atoi(strings.TrimSpace(scanner.Text()))
+	if err != nil {
+		fmt.Println("Invalid input")
+		return
+	}
+	// var itemNumber int
+	// fmt.Scan(&itemNumber)
 
 	if itemNumber == 0 {
 		return // Keluar dari Edit Cart jika pengguna memilih 0
@@ -207,14 +218,23 @@ func EditCart(cart *[]entity.MenuItem) {
 	}
 
 	// Mintalah pengguna memasukkan informasi item yang baru
+	// var newQuantity int
 	fmt.Print("Enter the new quantity: ")
-	var newQuantity int
-	fmt.Scan(&newQuantity)
+	scanner.Scan()
+	newQuantity, err := strconv.Atoi(strings.TrimSpace(scanner.Text()))
+	// fmt.Scan(&newQuantity)
 
 	// Update jumlah item dalam keranjang
+	for i, v := range *cart {
+		if v.ID == itemNumber {
+			(*cart)[i].Qty = newQuantity
+		}
+	}
+
 	//(*cart)[itemNumber-1].Quantity = newQuantity
 
 	fmt.Println("Item updated successfully.")
+	fmt.Println()
 }
 
 func DeleteItemFromCart(username string, cart *[]entity.MenuItem) {
