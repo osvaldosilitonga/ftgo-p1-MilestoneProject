@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 )
+
 func clearScreen() {
 	cmd := exec.Command("cmd", "/c", "cls") // Untuk sistem Windows
 	cmd.Stdout = os.Stdout
@@ -243,7 +244,6 @@ func AdminPage(username string) {
 					fmt.Println("Order Cancel		:", report.Cancel)
 					fmt.Printf("Order Revenue		: Rp.%v\n", report.Revenue)
 					fmt.Println("---------------------------------------")
-					
 
 				case "2":
 					report, err := handler.MenuReport()
