@@ -48,13 +48,15 @@ func AdminPage(username string) {
 			var username, orderDate string
 			counter := 1
 			for _, o := range orders {
+				date := strings.Split(o.OrderDate, " ")
+
 				if username != o.Username || o.OrderDate != orderDate {
 					counter = 1
 
 					fmt.Println() // Separator
 					fmt.Println("Order ID		: ", o.ID)
 					fmt.Println("Username		: ", o.Username)
-					fmt.Println("Order Date		: ", o.OrderDate)
+					fmt.Println("Order Date		: ", date[0])
 					fmt.Println("Menu Items : ")
 					fmt.Printf("  %v. %v --- x%v\n", counter, o.Menu, o.Qty)
 				} else {
