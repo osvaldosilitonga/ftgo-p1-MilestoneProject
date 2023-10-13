@@ -16,7 +16,7 @@ Berikut adalah penjelasan tentang struktur tabel dan data yang digunakan dalam p
 ## Tabel "users"
 
 - **id** (INT): Kunci utama.
-- **username** (VARCHAR(20)): Nama pengguna unik.
+- **username** (VARCHAR(20)): Nama pengguna unique.
 - **name** (VARCHAR(50)): Nama pengguna.
 - **address** (TEXT): Alamat pengguna.
 - **email** (VARCHAR(100)): Alamat email pengguna.
