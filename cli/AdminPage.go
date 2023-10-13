@@ -5,11 +5,16 @@ import (
 	"fmt"
 	"klepon/handler"
 	"os"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
 )
-
+func clearScreen() {
+	cmd := exec.Command("cmd", "/c", "cls") // Untuk sistem Windows
+	cmd.Stdout = os.Stdout
+	cmd.Run()
+}
 func AdminPage(username string) {
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -68,6 +73,7 @@ func AdminPage(username string) {
 			fmt.Println("-----------------------------------------") // Separator
 
 			OrderListAction()
+			clearScreen()
 
 		case "2":
 			fmt.Printf("\n----------	Payment Menu - Order List	----------\n")
@@ -198,6 +204,7 @@ func AdminPage(username string) {
 					fmt.Println("Invalid input")
 				}
 			}
+			clearScreen()
 
 		case "3":
 			for {
@@ -236,6 +243,7 @@ func AdminPage(username string) {
 					fmt.Println("Order Cancel		:", report.Cancel)
 					fmt.Printf("Order Revenue		: Rp.%v\n", report.Revenue)
 					fmt.Println("---------------------------------------")
+					
 
 				case "2":
 					report, err := handler.MenuReport()

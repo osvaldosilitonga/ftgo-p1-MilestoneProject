@@ -6,13 +6,21 @@ import (
 	"klepon/config"
 	"strconv"
 	"strings"
-
+	"os/exec"
 	"klepon/entity"
 	"log"
 	"os"
 )
 
+
+func clearScreen() {
+	cmd := exec.Command("cmd", "/c", "cls")
+	cmd.Stdout = os.Stdout
+	cmd.Run()
+}
 func DisplayMenuList() ([]entity.MenuItem, error) {
+	// Membersihkan layar konsol
+	clearScreen()
 	// Connect to DB
 	db, err := config.ConnDB()
 	if err != nil {
@@ -45,6 +53,7 @@ func DisplayMenuList() ([]entity.MenuItem, error) {
 }
 
 func MakeOrder(username string, cart *[]entity.MenuItem, status string) error {
+	
 	// Koneksi ke DB
 	db, err := config.ConnDB()
 	if err != nil {
@@ -118,6 +127,8 @@ func MakeOrder(username string, cart *[]entity.MenuItem, status string) error {
 }
 
 func ManageCart(username string, cart *[]entity.MenuItem, defaultStatus string) {
+	// Membersihkan layar konsol
+	clearScreen()
 
 	for {
 		// Tampilkan isi keranjang
@@ -208,14 +219,14 @@ func EditCart(cart *[]entity.MenuItem) {
 	// var itemNumber int
 	// fmt.Scan(&itemNumber)
 
-	if itemNumber == 0 {
-		return // Keluar dari Edit Cart jika pengguna memilih 0
-	}
+    if itemNumber == 0 {
+        return // Keluar dari Edit Cart jika pengguna memilih 0
+    }
 
-	if itemNumber < 1 || itemNumber > len(*cart) {
-		fmt.Println("Invalid item number. Please try again.")
-		return
-	}
+    if itemNumber < 1 || itemNumber > len(*cart) {
+        fmt.Println("Invalid item number. Please try again.")
+        return
+    }
 
 	// Mintalah pengguna memasukkan informasi item yang baru
 	// var newQuantity int
@@ -237,9 +248,10 @@ func EditCart(cart *[]entity.MenuItem) {
 	fmt.Println()
 }
 
+
 func DeleteItemFromCart(username string, cart *[]entity.MenuItem) {
 	fmt.Println("Delete Item from Cart")
-
+	fmt.Print("\033[H\033[2J") 
 	// Tampilkan isi keranjang saat ini
 	fmt.Println("Your Cart:")
 	for i, item := range *cart {
@@ -249,7 +261,7 @@ func DeleteItemFromCart(username string, cart *[]entity.MenuItem) {
 	// Mintalah pengguna memasukkan nomor item yang ingin dihapus
 	fmt.Print("Enter the item number you want to delete (0 to finish): ")
 	var itemNumber int
-	fmt.Scan(&itemNumber)
+	fmt.Scanln(&itemNumber)
 
 	if itemNumber == 0 {
 		return // Keluar dari Delete Item jika pengguna memilih 0
@@ -259,6 +271,8 @@ func DeleteItemFromCart(username string, cart *[]entity.MenuItem) {
 		fmt.Println("Invalid item number. Please try again.")
 		return
 	}
+	// Membersihkan layar konsol
+	clearScreen()
 
 	// Hapus item dari keranjang
 	*cart = append((*cart)[:itemNumber-1], (*cart)[itemNumber:]...)
