@@ -1,6 +1,3 @@
-# ftgo-p1-MilestoneProject
-
-
 # Klepon Coffee Shop Program
 
 ## Deskripsi Singkat
